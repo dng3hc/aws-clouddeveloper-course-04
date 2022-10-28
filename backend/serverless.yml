@@ -1,7 +1,7 @@
 # TODO: Change the name of the org 
 org: dng3hc
-app: serverless-todo-app
-service: serverless-todo-app
+app: serverless-9gag-app
+service: serverless-9gag-app
 
 plugins:
   - serverless-webpack
@@ -22,9 +22,9 @@ provider:
   # Use these variables in the functions and resouorces section below. For example, 
   # ${self:provider.environment.ATTACHMENT_S3_BUCKET}
   environment:
-    TODOS_TABLE: Todos-${self:provider.stage}
+    TODOS_TABLE: 9gag-${self:provider.stage}
     TODOS_CREATED_AT_INDEX: CreatedAtIndex
-    ATTACHMENT_S3_BUCKET: serverless-dng3hc-todo-image-${self:provider.stage}
+    ATTACHMENT_S3_BUCKET: serverless-dng3hc-9gag-image-${self:provider.stage}
     SIGNED_URL_EXPIRATION: 300
     AUTH_0_JWKS_URL: https://dev-epvki6b2ihs1xfr7.us.auth0.com/.well-known/jwks.json
 

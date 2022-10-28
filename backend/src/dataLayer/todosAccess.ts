@@ -63,14 +63,16 @@ export class TodosAccess {
           userId: userId
         },
         UpdateExpression:
-          'set #todo_name = :name, dueDate = :dueDate, done = :done',
+          'set #todo_name = :name, dueDate = :dueDate, done = :done, upvote = :upvote, downvote = :downvote',
         ExpressionAttributeNames: {
           '#todo_name': 'name'
         },
         ExpressionAttributeValues: {
           ':name': updateTodoItem.name,
           ':dueDate': updateTodoItem.dueDate,
-          ':done': updateTodoItem.done
+          ':done': updateTodoItem.done,
+          ':upvote': updateTodoItem.upvote,
+          ':downvote': updateTodoItem.downvote,
         }
       })
       .promise()

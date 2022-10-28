@@ -73,11 +73,11 @@ export class EditTodo extends React.PureComponent<
   render() {
     return (
       <div>
-        <h1>Upload new image</h1>
+        <h1 style={{color: '#fff'}}>Upload new image</h1>
 
         <Form onSubmit={this.handleSubmit}>
           <Form.Field>
-            <label>File</label>
+            <label style={{color: '#fff'}}>File</label>
             <input
               type="file"
               accept="image/*"

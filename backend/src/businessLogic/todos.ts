@@ -38,7 +38,9 @@ export async function createTodo(userId: string, createTodoRequest: CreateTodoRe
     name: createTodoRequest.name,
     dueDate: createTodoRequest.dueDate,
     createdAt: new Date().toISOString(),
-    done: false
+    done: false,
+    upvote: 0,
+    downvote: 0,
   })
 }
 
@@ -46,7 +48,9 @@ export async function updateTodo(todoId: string, userId: string, updateTodoReque
   return await todoAccess.updateTodo(todoId, userId, {
     name: updateTodoRequest.name,
     dueDate: updateTodoRequest.dueDate,
-    done: updateTodoRequest.done
+    done: updateTodoRequest.done,
+    upvote: updateTodoRequest.upvote,
+    downvote: updateTodoRequest.downvote,
   })
 }
 

@@ -11,7 +11,9 @@ import {
   Icon,
   Input,
   Image,
-  Loader
+  Loader,
+  Label,
+  Modal
 } from 'semantic-ui-react'
 
 import { createTodo, deleteTodo, getTodos, patchTodo } from '../api/todos-api'
@@ -27,13 +29,17 @@ interface TodosState {
   todos: Todo[]
   newTodoName: string
   loadingTodos: boolean
+  showModal: boolean
+  currentPost: number
 }
 
 export class Todos extends React.PureComponent<TodosProps, TodosState> {
   state: TodosState = {
     todos: [],
     newTodoName: '',
-    loadingTodos: true
+    loadingTodos: true,
+    showModal: false,
+    currentPost: 0, 
   }
 
   handleNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -77,11 +83,52 @@ export class Todos extends React.PureComponent<TodosProps, TodosState> {
       await patchTodo(this.props.auth.getIdToken(), todo.todoId, {
         name: todo.name,
         dueDate: todo.dueDate,
-        done: !todo.done
+        done: !todo.done,
+        upvote: todo.upvote,
+        downvote: todo.downvote
       })
       this.setState({
         todos: update(this.state.todos, {
           [pos]: { done: { $set: !todo.done } }
+        })
+      })
+    } catch {
+      alert('Todo deletion failed')
+    }
+  }
+
+  onUpvote = async (pos: number) => {
+    try {
+      const todo = this.state.todos[pos]
+      await patchTodo(this.props.auth.getIdToken(), todo.todoId, {
+        name: todo.name,
+        dueDate: todo.dueDate,
+        done: todo.done,
+        upvote: todo.upvote,
+        downvote: todo.downvote
+      })
+      this.setState({
+        todos: update(this.state.todos, {
+          [pos]: { upvote: { $set: todo.upvote + 1 } }
+        })
+      })
+    } catch {
+      alert('Todo deletion failed')
+    }
+  }
+  onDownvote = async (pos: number) => {
+    try {
+      const todo = this.state.todos[pos]
+      await patchTodo(this.props.auth.getIdToken(), todo.todoId, {
+        name: todo.name,
+        dueDate: todo.dueDate,
+        done: todo.done,
+        upvote: todo.upvote,
+        downvote: todo.downvote
+      })
+      this.setState({
+        todos: update(this.state.todos, {
+          [pos]: { downvote: { $set: todo.downvote + 1 } }
         })
       })
     } catch {
@@ -104,7 +151,7 @@ export class Todos extends React.PureComponent<TodosProps, TodosState> {
   render() {
     return (
       <div>
-        <Header as="h1">TODOs</Header>
+        <Header as="h1" style={{color: '#fff'}}>POSTs</Header>
 
         {this.renderCreateTodoInput()}
 
@@ -119,15 +166,15 @@ export class Todos extends React.PureComponent<TodosProps, TodosState> {
         <Grid.Column width={16}>
           <Input
             action={{
-              color: 'teal',
+              color: 'grey',
               labelPosition: 'left',
               icon: 'add',
-              content: 'New task',
+              content: 'Upload new post',
               onClick: this.onTodoCreate
             }}
             fluid
             actionPosition="left"
-            placeholder="To change the world..."
+            placeholder="Post title"
             onChange={this.handleNameChange}
           />
         </Grid.Column>
@@ -168,10 +215,10 @@ export class Todos extends React.PureComponent<TodosProps, TodosState> {
                   checked={todo.done}
                 />
               </Grid.Column>
-              <Grid.Column width={10} verticalAlign="middle">
+              <Grid.Column width={10} verticalAlign="middle" style={{color: '#fff'}} >
                 {todo.name}
               </Grid.Column>
-              <Grid.Column width={3} floated="right">
+              <Grid.Column width={3} floated="right" style={{color: '#fff'}}>
                 {todo.dueDate}
               </Grid.Column>
               <Grid.Column width={1} floated="right">
@@ -192,9 +239,54 @@ export class Todos extends React.PureComponent<TodosProps, TodosState> {
                   <Icon name="delete" />
                 </Button>
               </Grid.Column>
-              {todo.attachmentUrl && (
-                <Image src={todo.attachmentUrl} size="small" wrapped />
-              )}
+              <Grid.Column width={16} floated="right" >
+                {todo.attachmentUrl && (
+                  <Image src={todo.attachmentUrl} size="large" wrapped/>
+                )}
+                <span style={{marginLeft: '15vw'}}>
+                  <Button as='div' labelPosition='right'>
+                    <Button
+                      icon
+                      color="grey"
+                      onClick={() => this.onUpvote(pos)}
+                    >
+                      <Icon name="arrow up" />
+                    </Button>
+                    <Label as='a' basic pointing='left'>
+                      {todo.upvote ? todo.upvote : "0"}
+                    </Label>
+                  </Button>
+                  <Button as='div' labelPosition='right'>
+                    <Button
+                      icon
+                      color="grey"
+                      onClick={() => this.onDownvote(pos)}
+                    >
+                      <Icon name="arrow down" />
+                    </Button>
+                    <Label as='a' basic pointing='left'>
+                      {todo.downvote ? todo.downvote : "0"}
+                    </Label>
+                  </Button>
+                </span>
+                <Modal
+                  onClose={() => this.setState({ showModal: false })}
+                  onOpen={() => this.setState({ showModal: true })}
+                  open={this.state.showModal && this.state.currentPost === pos}
+                  trigger={<Button onClick={() => {
+                    this.setState({ currentPost: pos })
+                    console.log(this.state.currentPost)
+                  }}>View Post</Button>}
+                >
+                  <Modal.Header>{this.state.todos[pos].name}</Modal.Header>
+                  <Modal.Content image>
+                    <Image src={this.state.todos[pos].attachmentUrl} size="large" wrapped />
+                  </Modal.Content>
+                  <Modal.Actions>
+                    <Button onClick={() => this.setState({ showModal: false })}>Cancel</Button>
+                  </Modal.Actions>
+                </Modal>
+              </Grid.Column>
               <Grid.Column width={16}>
                 <Divider />
               </Grid.Column>
